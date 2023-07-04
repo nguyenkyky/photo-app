@@ -1,14 +1,14 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import Select from 'react-select';
-import { Button, FormGroup, Input, Label } from 'reactstrap';
+import { Button, FormGroup, Input, Label, Spinner } from 'reactstrap';
 import { PHOTO_CATEGORY_OPTIONS } from '../../../../constants/global';
 import Images from 'constants/images';
 import { FastField, Form, Formik } from 'formik';
 import InputField from 'custom-fields/InputField';
 import SelectField from 'custom-fields/SelectField';
 import RandomPhotoField from 'custom-fields/RandomPhotoField';
-import * as Yup from 'yup'
+import * as Yup from 'yup';
 
 PhotoForm.propTypes = {
     onSubmit: PropTypes.func,
@@ -22,31 +22,26 @@ function PhotoForm(props) {
     const iniitialValues = {
         title: '',
         categoryId: null,
-        photo:'',
+        photo: '',
     };
 
     const validationSchema = Yup.object().shape({
         title: Yup.string().required('This field is required.'),
-    
-        categoryId: Yup.number()
-          .required('This field is required.')
-          .nullable(),
-    
+
+        categoryId: Yup.number().required('This field is required.').nullable(),
+
         photo: Yup.string().when('categoryId', {
-          is: 1,
-          then: () => Yup.string().required('This field is required.'),
-          otherwise: () => Yup.string().notRequired(),
-        })
-      });
+            is: 1,
+            then: () => Yup.string().required('This field is required.'),
+            otherwise: () => Yup.string().notRequired(),
+        }),
+    });
     // npm i --save react-select
     return (
-        <Formik initialValues={iniitialValues}
-        validationSchema={validationSchema}
-        onSubmit={values => console.log('Submit: ', values)}
-        >
+        <Formik initialValues={iniitialValues} validationSchema={validationSchema} onSubmit={props.onSubmit}>
             {(formikProps) => {
-                const { values, error, touched } = formikProps;
-                console.log(formikProps)
+                const { values, error, touched, isSubmitting } = formikProps;
+                // console.log(formikProps);
                 return (
                     <Form>
                         <FastField
@@ -62,8 +57,6 @@ function PhotoForm(props) {
                             <Label for="titleId">Title</Label>
                             <Input name="title" id="titleId" placeholder="Eg: Wow nature ..." />
                         </FormGroup> */}
-
-                        
 
                         <FastField
                             name="categoryId"
@@ -85,14 +78,13 @@ function PhotoForm(props) {
                                 <img width="200px" height="200px" src={Images.COLORFUL_BG} alt="colorful background" />
                             </div>
                         </FormGroup> */}
-                        <FastField
-                            name="photo"
-                            component={RandomPhotoField}
-                            label="Photo"
-                        />
+                        <FastField name="photo" component={RandomPhotoField} label="Photo" />
 
                         <FormGroup>
-                        <Button type="submit" color="primary">Add to album</Button>
+                            <Button type="submit" color="primary">
+                                {isSubmitting && <Spinner size="sm"></Spinner>}
+                                Add to album
+                            </Button>
                         </FormGroup>
                     </Form>
                 );
